@@ -1,0 +1,406 @@
+package com.clipp.devicemanagerapp
+
+import android.Manifest
+import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.AudioManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
+import android.provider.Settings
+import android.widget.Button
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import java.util.*
+
+/**
+ * MainActivity es la actividad principal de la aplicación Device Manager.
+ * Proporciona funciones para controlar varios aspectos del dispositivo,
+ * como reinicio, apagado, Bluetooth, GPS, datos móviles, pantalla, modo avión,
+ * modo quiosco, volumen, brillo y configuración de fecha/hora.
+ */
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var devicePolicyManager: DevicePolicyManager
+    private lateinit var compName: ComponentName
+    private lateinit var audioManager: AudioManager
+    private lateinit var powerManager: PowerManager
+    private var wakeLock: WakeLock? = null
+
+    companion object {
+        const val REQUEST_CODE = 123
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        initializeServices()
+        initializeButtons()
+        requestNecessaryPermissions()
+    }
+
+    /**
+     * Inicializa los servicios del sistema necesarios.
+     */
+    private fun initializeServices() {
+        powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        devicePolicyManager = getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        compName = ComponentName(this, DeviceAdminReceiver::class.java)
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    /**
+     * Inicializa los botones de la interfaz y configura sus listeners.
+     */
+    private fun initializeButtons() {
+        findViewById<Button>(R.id.btnReboot).setOnClickListener { rebootDevice() }
+        findViewById<Button>(R.id.btnShutdown).setOnClickListener { shutdownDevice() }
+        findViewById<Button>(R.id.btnEnableBluetooth).setOnClickListener { setBluetooth(true) }
+        findViewById<Button>(R.id.btnDisableBluetooth).setOnClickListener { setBluetooth(false) }
+        findViewById<Button>(R.id.btnEnableGPS).setOnClickListener { setGPS() }
+        findViewById<Button>(R.id.btnDisableGPS).setOnClickListener { setGPS() }
+        findViewById<Button>(R.id.btnEnableMobileData).setOnClickListener { setMobileData(true) }
+        findViewById<Button>(R.id.btnDisableMobileData).setOnClickListener { setMobileData(false) }
+        findViewById<Button>(R.id.btnEnableScreen).setOnClickListener { setScreenOn(true) }
+        findViewById<Button>(R.id.btnDisableScreen).setOnClickListener { setScreenOn(false) }
+        findViewById<Button>(R.id.btnEnableAirplaneMode).setOnClickListener { setAirplaneMode(true) }
+        findViewById<Button>(R.id.btnDisableAirplaneMode).setOnClickListener { setAirplaneMode(false) }
+        findViewById<Button>(R.id.btnEnableKioskMode).setOnClickListener { setKioskMode(true) }
+        findViewById<Button>(R.id.btnDisableKioskMode).setOnClickListener { setKioskMode(false) }
+        findViewById<Button>(R.id.btnAdjustVolume).setOnClickListener { showVolumeDialog() }
+        findViewById<Button>(R.id.btnAdjustBrightness).setOnClickListener { showBrightnessDialog() }
+        findViewById<Button>(R.id.btnChangeDateTime).setOnClickListener { showDateTimePicker() }
+    }
+
+    /**
+     * Solicita los permisos necesarios para el funcionamiento de la aplicación.
+     */
+    private fun requestNecessaryPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.CHANGE_WIFI_STATE,
+            Manifest.permission.MODIFY_PHONE_STATE,
+            Manifest.permission.WRITE_SETTINGS,
+            Manifest.permission.REQUEST_INSTALL_PACKAGES,
+            Manifest.permission.EXPAND_STATUS_BAR
+        )
+        requestPermissionsIfNecessary(permissions)
+    }
+
+    /**
+     * Solicita permisos si aún no han sido concedidos.
+     */
+    private fun requestPermissionsIfNecessary(permissions: Array<String>) {
+        for (permission in permissions) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, permissions, 0)
+            }
+        }
+    }
+
+    /**
+     * Solicita permisos de administrador del dispositivo.
+     */
+    private fun requestDeviceAdmin() {
+        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, compName)
+        intent.putExtra(
+            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+            "Permite activar el modo quiosco."
+        )
+        startActivityForResult(intent, 1)
+    }
+
+    /**
+     * Activa o desactiva el modo avión.
+     */
+    private fun setAirplaneMode(enable: Boolean) {
+        try {
+            Settings.System.putInt(
+                contentResolver,
+                Settings.Global.AIRPLANE_MODE_ON,
+                if (enable) 1 else 0
+            )
+        } catch (e: Exception) {
+            showToast("Exception occurred during Airplane Mode change")
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Muestra un diálogo para ajustar el volumen del dispositivo.
+     */
+    private fun showVolumeDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_volume_control, null)
+        val seekBarVolume = dialogView.findViewById<SeekBar>(R.id.seekBarVolume)
+        val tvVolume = dialogView.findViewById<TextView>(R.id.tvVolume)
+
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        seekBarVolume.progress = currentVolume
+        tvVolume.text = "Ajustar Volumen: $currentVolume"
+
+        seekBarVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                audioManager.setStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    progress,
+                    AudioManager.FLAG_PLAY_SOUND
+                )
+                tvVolume.text = "Ajustar Volumen: $progress"
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+
+        AlertDialog.Builder(this)
+            .setTitle("Control de Volumen")
+            .setView(dialogView)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    /**
+     * Muestra un diálogo para ajustar el brillo de la pantalla.
+     */
+    private fun showBrightnessDialog() {
+        if (Settings.System.canWrite(this)) {
+            val dialogView = layoutInflater.inflate(R.layout.dialog_brightness_control, null)
+            val seekBarBrightness = dialogView.findViewById<SeekBar>(R.id.seekBarBrightness)
+            val tvBrightness = dialogView.findViewById<TextView>(R.id.tvBrightness)
+
+            seekBarBrightness.max = 100
+            val currentBrightness = getCurrentBrightnessPercent()
+            seekBarBrightness.progress = currentBrightness
+            tvBrightness.text = "Ajustar Brillo: $currentBrightness%"
+
+            seekBarBrightness.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    val brightnessValue = (progress * 255) / 100
+                    applyBrightness(brightnessValue)
+                    tvBrightness.text = "Ajustar Brillo: $progress%"
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar) {}
+            })
+
+            AlertDialog.Builder(this)
+                .setTitle("Control de Brillo")
+                .setView(dialogView)
+                .setPositiveButton("OK", null)
+                .show()
+        } else {
+            requestWriteSettingsPermission()
+        }
+    }
+
+    /**
+     * Obtiene el porcentaje actual de brillo de la pantalla.
+     */
+    private fun getCurrentBrightnessPercent(): Int {
+        return try {
+            val currentBrightness =
+                Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS)
+            (currentBrightness * 100) / 255
+        } catch (e: Settings.SettingNotFoundException) {
+            showToast("Error al obtener el brillo actual: ${e.message}")
+            0
+        }
+    }
+
+    /**
+     * Aplica el valor de brillo especificado a la pantalla.
+     */
+    private fun applyBrightness(brightnessValue: Int) {
+        try {
+            Settings.System.putInt(
+                contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS,
+                brightnessValue
+            )
+        } catch (e: Settings.SettingNotFoundException) {
+            showToast("Error al ajustar el brillo: ${e.message}")
+        }
+    }
+
+    /**
+     * Solicita permiso para modificar los ajustes del sistema.
+     */
+    private fun requestWriteSettingsPermission() {
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+        intent.data = Uri.parse("package:$packageName")
+        startActivity(intent)
+    }
+
+    /**
+     * Muestra un mensaje Toast.
+     */
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Reinicia el dispositivo.
+     */
+    private fun rebootDevice() {
+        devicePolicyManager.reboot(compName)
+        showToast("Reiniciando dispositivo")
+    }
+
+    /**
+     * Apaga el dispositivo.
+     */
+    private fun shutdownDevice() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            showToast("Este dispositivo no tiene permisos para apagar automáticamente")
+        } else {
+            val intent = Intent(Intent.ACTION_SHUTDOWN)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+    }
+
+    /**
+     * Activa o desactiva el Bluetooth.
+     */
+    private fun setBluetooth(enable: Boolean) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                REQUEST_CODE
+            )
+            return
+        }
+
+        val bluetoothAdapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
+        if (enable) {
+            bluetoothAdapter.enable()
+            showToast("Bluetooth activado")
+        } else {
+            bluetoothAdapter.disable()
+            showToast("Bluetooth desactivado")
+        }
+    }
+
+    /**
+     * Abre la configuración de GPS.
+     */
+    private fun setGPS() {
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+        startActivity(intent)
+    }
+
+    /**
+     * Abre la configuración de datos móviles.
+     */
+    private fun setMobileData(enable: Boolean) {
+        val dataSettingsIntent = Intent().apply {
+            action = Settings.ACTION_DATA_ROAMING_SETTINGS
+            addCategory(Intent.CATEGORY_DEFAULT)
+        }
+        startActivity(dataSettingsIntent)
+    }
+
+    /**
+     * Enciende o apaga la pantalla.
+     */
+    private fun setScreenOn(enable: Boolean) {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+
+        if (powerManager == null) {
+            showToast("No se pudo obtener el servicio PowerManager")
+            return
+        }
+
+        if (enable) {
+            wakeLock?.release()
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
+                "app:myWakeLock"
+            )
+            wakeLock?.acquire(10 * 60 * 1000L)
+            showToast("Pantalla encendida")
+        } else {
+            val devicePolicyManager =
+                getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+            if (devicePolicyManager == null) {
+                showToast("No se pudo obtener el servicio DevicePolicyManager")
+                return
+            }
+            devicePolicyManager.lockNow()
+            showToast("Pantalla apagada")
+        }
+    }
+
+    /**
+     * Activa o desactiva el modo quiosco.
+     */
+    private fun setKioskMode(enable: Boolean) {
+        if (enable) {
+            startLockTask()
+            showToast("Modo quiosco activado")
+        } else {
+            stopLockTask()
+            showToast("Modo quiosco desactivado")
+        }
+    }
+
+    /**
+     * Muestra un selector de fecha y hora.
+     */
+    private fun showDateTimePicker() {
+        val calendar = Calendar.getInstance()
+
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+                val timePickerDialog = TimePickerDialog(
+                    this,
+                    { _, hourOfDay, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        calendar.set(Calendar.MINUTE, minute)
+                        val selectedDateTime = findViewById<TextView>(R.id.selectedDateTime)
+                        selectedDateTime.text = calendar.time.toString()
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                )
+                timePickerDialog.show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+}
