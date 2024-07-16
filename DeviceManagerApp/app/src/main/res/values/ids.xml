@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btnReboot" type="id" />
+    <item name="btnShutdown" type="id" />
+    <item name="btnEnableBluetooth" type="id" />
+    <item name="btnDisableBluetooth" type="id" />
+    <item name="btnEnableGPS" type="id" />
+    <item name="btnDisableGPS" type="id" />
+    <item name="btnEnableMobileData" type="id" />
+    <item name="btnDisableMobileData" type="id" />
+    <item name="btnEnableAirplaneMode" type="id" />
+    <item name="btnDisableAirplaneMode" type="id" />
+    <item name="btnVolumeUp" type="id" />
+    <item name="btnVolumeDown" type="id" />
+    <item name="btnBrightnessUp" type="id" />
+    <item name="btnBrightnessDown" type="id" />
+    <item name="btnInstallApp" type="id" />
+    <item name="btnUninstallApp" type="id" />
+</resources>
