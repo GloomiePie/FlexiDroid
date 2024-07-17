@@ -36,6 +36,6 @@ Para instalar y ejecutar este proyecto localmente, sigue estos pasos:
 1. Leonardo Chuquimarca
 2. Carlos Morocho
 3. Pablo Reyes
-4. Jeann Alejo
+4. Jean Alejo
 
 ¡Gracias por tu interés en nuestro proyecto!
