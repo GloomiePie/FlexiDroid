@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:context=".MainActivity">
+
+        <!-- Primer grupo vertical -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btnGPS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Encender/Apagar GPS"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnMobileData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Encender/Apagar Datos Móviles"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnAirplaneMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Encender/Apagar Modo avión"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnRequestAdmin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Solicitar Administrador de Dispositivo"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnChangeDateTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cambiar Fecha/Hora"
+                style="@style/MyButtonStyle" />
+
+        </LinearLayout>
+
+        <!-- Segundos y siguientes grupos horizontales -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnReboot"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Reiniciar Dispositivo"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnShutdown"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Apagar Dispositivo"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEnableBluetooth"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Encender Bluetooth"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnDisableBluetooth"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Apagar Bluetooth"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEnableScreen"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Encender Pantalla"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnDisableScreen"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Apagar Pantalla"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEnableKioskMode"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Habilitar Modo Kiosco"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnDisableKioskMode"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Deshabilitar Modo Kiosco"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEnableLauncher"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Habilitar Launcher"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnDisableLauncher"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Deshabilitar Launcher"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnAdjustVolume"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Ajustar Volumen"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnAdjustBrightness"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Ajustar Brillo"
+                style="@style/MyButtonStyle" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnInstallApp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Instalar App"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnUninstallApp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Desinstalar App"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEnableBatterySaver"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Activar Ahorro de Batería"
+                style="@style/MyButtonStyle" />
+
+            <Button
+                android:id="@+id/btnDisableBatterySaver"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Desactivar Ahorro de Batería"
+                style="@style/MyButtonStyle" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
