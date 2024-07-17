@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- Define un estilo para tu AppTheme heredando de Theme.AppCompat -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Personaliza tu tema aquí si lo deseas -->
-    </style>
-
-</resources>
