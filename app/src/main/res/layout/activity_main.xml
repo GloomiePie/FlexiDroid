@@ -52,6 +52,13 @@
                 android:text="Cambiar Fecha/Hora"
                 style="@style/MyButtonStyle" />
 
+            <Button
+                android:id="@+id/btnBatterySaver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Activar/Desactivar Ahorro de Batería"
+                style="@style/MyButtonStyle" />
+
         </LinearLayout>
 
         <!-- Segundos y siguientes grupos horizontales -->
@@ -149,28 +156,6 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnEnableLauncher"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Habilitar Launcher"
-                style="@style/MyButtonStyle" />
-
-            <Button
-                android:id="@+id/btnDisableLauncher"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Deshabilitar Launcher"
-                style="@style/MyButtonStyle" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
                 android:id="@+id/btnAdjustVolume"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -188,49 +173,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnInstallApp"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Instalar App"
-                style="@style/MyButtonStyle" />
-
-            <Button
-                android:id="@+id/btnUninstallApp"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Desinstalar App"
-                style="@style/MyButtonStyle" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnEnableBatterySaver"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Activar Ahorro de Batería"
-                style="@style/MyButtonStyle" />
-
-            <Button
-                android:id="@+id/btnDisableBatterySaver"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Desactivar Ahorro de Batería"
-                style="@style/MyButtonStyle" />
-        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

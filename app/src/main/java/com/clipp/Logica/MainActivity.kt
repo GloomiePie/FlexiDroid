@@ -25,6 +25,7 @@ import android.bluetooth.BluetoothAdapter
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
+import android.util.Log
 import com.clipp.devicemanagerapp.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -70,6 +71,9 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         checkLocationPermission()
 
+        // Llamada para solicitar permisos y desactivar Bluetooth
+        requestNecessaryPermissions()
+
     }
 
     /**
@@ -100,8 +104,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAdjustVolume).setOnClickListener { showVolumeDialog() }
         findViewById<Button>(R.id.btnAdjustBrightness).setOnClickListener { showBrightnessDialog() }
         findViewById<Button>(R.id.btnChangeDateTime).setOnClickListener { showDateTimePicker() }
-        findViewById<Button>(R.id.btnEnableBatterySaver).setOnClickListener { setBatterySaver(true) }
-        findViewById<Button>(R.id.btnDisableBatterySaver).setOnClickListener { setBatterySaver(false) }
+        findViewById<Button>(R.id.btnBatterySaver).setOnClickListener { setBatterySaver() }
 
     }
 
@@ -118,7 +121,9 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.MODIFY_PHONE_STATE,
             Manifest.permission.WRITE_SETTINGS,
             Manifest.permission.REQUEST_INSTALL_PACKAGES,
-            Manifest.permission.EXPAND_STATUS_BAR
+            Manifest.permission.EXPAND_STATUS_BAR,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN
         )
         requestPermissionsIfNecessary(permissions)
     }
@@ -133,7 +138,10 @@ class MainActivity : AppCompatActivity() {
 
         if (permissionsNeeded.isNotEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded, REQUEST_CODE)
+        } else {
+            setBluetooth(false) // Permisos ya concedidos, intenta desactivar Bluetooth
         }
+
     }
 
     /**
@@ -369,23 +377,10 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             if (bluetoothAdapter.isEnabled) {
-                showToast("Intentando desactivar Bluetooth...")
-                bluetoothAdapter.disable()
-
-                val receiver = object : BroadcastReceiver() {
-                    override fun onReceive(context: Context?, intent: Intent?) {
-                        val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
-                        if (state == BluetoothAdapter.STATE_OFF) {
-                            showToast("Bluetooth desactivado.")
-                            unregisterReceiver(this)
-                        } else if (state == BluetoothAdapter.STATE_ON) {
-                            showToast("Error al desactivar Bluetooth.")
-                            unregisterReceiver(this)
-                        }
-                    }
-                }
-                val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-                registerReceiver(receiver, filter)
+                // Redirige al usuario a la configuración de Bluetooth
+                val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+                startActivity(intent)
+                showToast("Por favor, desactive Bluetooth manualmente desde los ajustes.")
             } else {
                 showToast("Bluetooth ya está desactivado.")
             }
@@ -466,7 +461,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Activar y desactivar el ahorro de batería
      */
-    private fun setBatterySaver(enable: Boolean) {
+    private fun setBatterySaver() {
         val intent = Intent(Intent.ACTION_POWER_USAGE_SUMMARY)
         try {
             startActivity(intent)
